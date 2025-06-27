@@ -1,0 +1,16 @@
+function(target_lua_module target_name)
+	if (WIN32)
+		target_link_libraries(${target_name} PUBLIC Lua::Lua ${ARGN})
+		target_compile_definitions(${target_name} PUBLIC LUA_BUILD_AS_DLL LUA_LIB)
+	else()
+		target_link_libraries(${target_name} ${ARGN})
+		# don't link lua on non windows platforms as they can use dynamic undefined symbol lookup
+		target_include_directories(${target_name} PRIVATE ${LUA_INCLUDE_DIR})
+
+		if(APPLE)
+			target_link_options(${target_name} PUBLIC -bundle -undefined dynamic_lookup -all_load)
+		else()
+			target_link_options(${target_name} PUBLIC -shared)
+		endif()
+	endif()
+endfunction()
